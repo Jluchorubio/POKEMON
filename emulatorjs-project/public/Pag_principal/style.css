@@ -1,0 +1,140 @@
+.logo-pokemon {
+        transition: transform 0.3s ease;
+      }
+      .logo-pokemon:hover {
+        transform: scale(1.3);
+      }
+      
+      .nav-link {
+        position: relative;
+        transition: all 0.3s ease;
+      }
+      
+      .nav-link::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        transition: all 0.3s ease;
+      }
+      
+      /* Colores individuales para cada botón */
+      .nav-inicio::after {
+        background-color: #6B7280;
+      }
+      .nav-inicio:hover {
+        background-color: #6B7280;
+        color: white !important;
+      }
+      
+      .nav-pokedex::after {
+        background-color: #F59E0B;
+      }
+      .nav-pokedex:hover {
+        background-color: #F59E0B;
+        color: white !important;
+      }
+      
+      .nav-informacion::after {
+        background-color: #EF4444;
+      }
+      .nav-informacion:hover {
+        background-color: #EF4444;
+        color: white !important;
+      }
+      
+      .nav-entretenimiento::after {
+        background-color: #10B981;
+      }
+      .nav-entretenimiento:hover {
+        background-color: #10B981;
+        color: white !important;
+      }
+      
+      .nav-link:hover .nav-icon {
+        color: white !important;
+      }
+
+      .nav-link:hover span {
+        color: white !important;
+      }
+
+      .dropdown-item {
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* --- Ajuste mínimo para alinear indicadores con el borde inferior del header --- */
+/* Asegura que el header actúe como contenedor posicionado */
+header {
+  position: relative; /* necesario para posicionar los ::after relativos al header si usamos offsets negativos */
+}
+
+/* Offset configurable: modifica este valor si la línea está muy arriba/abajo.
+   Valor recomendado inicial: 10px (prueba ± hasta que quede perfecto). */
+:root {
+  --indicator-offset: 30px;
+}
+
+/* Estas reglas solo afectan a las dos pestañas que pediste */
+.nav-informacion::after,
+.nav-entretenimiento::after {
+  /* Mantener dimensiones existentes */
+  height: 4px;
+  left: 0;
+  right: 0;
+
+  /* Bajar la línea por debajo del botón hasta el borde inferior del header.
+     Ajusta --indicator-offset si hace falta. Valores positivos bajan más la línea. */
+  bottom: calc(-1 * var(--indicator-offset));
+
+  /* Asegura que la barra sea visible por encima de fondos/elementos */
+  z-index: 60;
+  pointer-events: none; /* evita interacción accidental */
+}
+
+/* Opcional: si quieres que la línea cubra exactamente el ancho visual del enlace (ya lo hace),
+   mantén width implícita (left:0; right:0). */
+
+/* Si por algún motivo tus botones tienen márgenes/bordes que alteran el cálculo,
+   prueba aumentar el offset a 12px o 14px:
+   :root { --indicator-offset: 12px; } */
+
+
+      .dropdown-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 3px;
+        background: linear-gradient(180deg, #3b82f6, #8b5cf6);
+        transform: scaleY(0);
+        transition: transform 0.3s ease;
+      }
+
+      .dropdown-item:hover::before {
+        transform: scaleY(1);
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      [popover]:popover-open {
+        animation: slideDown 0.2s ease;
+      }
+
+      /*POKEMON DESTACADO*/
+       .screen-glow {
+      box-shadow: inset 0 0 20px rgba(0, 255, 255, 0.3);
+    }

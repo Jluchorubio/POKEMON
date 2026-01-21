@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>EmulatorJS - Pokémon</title>
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      background: #1a1a2e;
+      overflow: hidden;
+    }
+    #game {
+      width: 100%;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="game"></div>
+
+  <script>
+    // Obtener ROM desde parámetro URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const romParam = urlParams.get('rom') || '/roms/pokemon_firered.gba';
+
+    // IMPORTANTE: Definir EJS_pathtodata ANTES de cargar el loader
+    window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
+  </script>
+
+  <!-- Cargar EmulatorJS DESPUÉS de definir pathtodata -->
+  <script src="https://cdn.emulatorjs.org/stable/data/loader.js"></script>
+  
+  <script>
+    // Detectar el tipo de juego automáticamente
+    const lowerRom = romParam.toLowerCase();
+    let gameCore = 'gba'; // Por defecto GBA
+    let gameName = 'Pokémon';
+    let gameColor = '#ff0000';
+
+    if (lowerRom.includes('firered')) {
+      gameName = 'Pokémon FireRed';
+      gameColor = '#ff6b6b';
+      gameCore = 'gba';
+    } else if (lowerRom.includes('emerald')) {
+      gameName = 'Pokémon Emerald';
+      gameColor = '#51cf66';
+      gameCore = 'gba';
+    } else if (lowerRom.includes('amarillo') || lowerRom.includes('yellow')) {
+      gameName = 'Pokémon Amarillo';
+      gameColor = '#ffd43b';
+      gameCore = 'gb';
+    } else if (lowerRom.endsWith('.gbc') || lowerRom.endsWith('.gb')) {
+      gameCore = 'gb';
+    } else if (lowerRom.endsWith('.gba')) {
+      gameCore = 'gba';
+    }
+
+    // Configuración del emulador
+    window.EJS_player = '#game';
+    window.EJS_gameUrl = romParam;
+    window.EJS_core = gameCore;
+    window.EJS_gameName = gameName;
+    window.EJS_color = gameColor;
+    window.EJS_startOnLoaded = true;
+    
+    console.log('🎮 Configuración EmulatorJS:', {
+      player: window.EJS_player,
+      gameUrl: window.EJS_gameUrl,
+      core: window.EJS_core,
+      gameName: window.EJS_gameName,
+      pathtodata: window.EJS_pathtodata
+    });
+  </script>
+</body>
+</html>
