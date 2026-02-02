@@ -9,7 +9,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Redirigir raíz al menú principal dentro de Pag_principal
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'Pag_principal', 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'Pag_principal', 'index.php'));
 });
 
 app.listen(PORT, () => {
