@@ -66,44 +66,7 @@
         overflow: hidden;
       }
 
-      /* --- Ajuste mínimo para alinear indicadores con el borde inferior del header --- */
-/* Asegura que el header actúe como contenedor posicionado */
-header {
-  position: relative; /* necesario para posicionar los ::after relativos al header si usamos offsets negativos */
-}
-
-/* Offset configurable: modifica este valor si la línea está muy arriba/abajo.
-   Valor recomendado inicial: 10px (prueba ± hasta que quede perfecto). */
-:root {
-  --indicator-offset: 30px;
-}
-
-/* Estas reglas solo afectan a las dos pestañas que pediste */
-.nav-informacion::after,
-.nav-entretenimiento::after {
-  /* Mantener dimensiones existentes */
-  height: 4px;
-  left: 0;
-  right: 0;
-
-  /* Bajar la línea por debajo del botón hasta el borde inferior del header.
-     Ajusta --indicator-offset si hace falta. Valores positivos bajan más la línea. */
-  bottom: calc(-1 * var(--indicator-offset));
-
-  /* Asegura que la barra sea visible por encima de fondos/elementos */
-  z-index: 60;
-  pointer-events: none; /* evita interacción accidental */
-}
-
-/* Opcional: si quieres que la línea cubra exactamente el ancho visual del enlace (ya lo hace),
-   mantén width implícita (left:0; right:0). */
-
-/* Si por algún motivo tus botones tienen márgenes/bordes que alteran el cálculo,
-   prueba aumentar el offset a 12px o 14px:
-   :root { --indicator-offset: 12px; } */
-
-
-      .dropdown-item::before {
+.dropdown-item::before {
         content: '';
         position: absolute;
         left: 0;
