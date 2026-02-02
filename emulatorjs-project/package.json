@@ -11,6 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "express-session": "^1.19.0",
+    "mysql2": "^3.16.2",
     "node-fetch": "^2.7.0"
   }
 }
