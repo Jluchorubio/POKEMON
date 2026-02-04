@@ -275,29 +275,31 @@
       <span class="text-gray-400">Selecciona un Pokémon</span>
     </div>
 
-    <!-- Información del Pokémon -->
-    <div
-      id="pokemon-info"
-      class="flex-1 bg-gray-700 rounded-lg p-3 border-2 border-green-300 overflow-y-auto text-sm"
-    >
-      <p class="text-gray-400">Aquí se mostrará la información</p>
+<!-- Información del Pokémon -->
+<div
+  id="pokemon-info"
+  class="flex-1 bg-gray-700 rounded-lg p-3 border-2 border-green-300 text-sm"
+>
+  <p class="text-gray-400">Selecciona un Pokémon</p>
+</div>
 
-      <div class="flex flex-col gap-2 mt-2">
-        <button
-          onclick="liberarPokemon()"
-          class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded-lg shadow"
-        >
-          Liberar
-        </button>
+<!-- BOTONES (debajo de la info) -->
+<div id="pokemon-acciones" class="flex gap-3 mt-3 hidden">
+  <button
+    onclick="editarPokemon()"
+    class="flex-1 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold py-2 rounded"
+  >
+    Editar
+  </button>
 
-        <button
-          onclick="editarPokemon()"
-          class="bg-yellow-500 hover:bg-yellow-400 px-4 py-2 rounded-lg shadow"
-        >
-          Editar
-        </button>
-      </div>
-    </div>
+  <button
+    onclick="liberarPokemon()"
+    class="flex-1 bg-red-600 hover:bg-red-500 font-semibold py-2 rounded"
+  >
+    Liberar
+  </button>
+</div>
+
 
   </aside>
 
@@ -407,6 +409,69 @@
     </form>
   </div>
 </div>
+
+<!-- MODAL EDITAR POKÉMON -->
+<div
+  id="modal-editar"
+  class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+>
+  <div class="bg-gray-800 text-white w-full max-w-md rounded-xl p-6 border-4 border-yellow-400">
+
+    <h2 class="text-xl font-bold mb-4">Editar Pokémon</h2>
+
+    <form id="form-editar-pokemon" class="flex flex-col gap-3">
+
+      <!-- Nivel -->
+      <input
+        id="editar-nivel"
+        type="number"
+        min="1"
+        max="100"
+        placeholder="Nivel"
+        required
+        class="px-3 py-2 rounded bg-gray-700 border border-gray-500"
+      >
+
+      <!-- Sexo -->
+      <select
+        id="editar-sexo"
+        class="px-3 py-2 rounded bg-gray-700 border border-gray-500"
+      >
+        <option value="M">Macho</option>
+        <option value="F">Hembra</option>
+        <option value="Desconocido">Desconocido</option>
+      </select>
+
+      <!-- Naturaleza -->
+      <select
+        id="editar-naturaleza"
+        class="px-3 py-2 rounded bg-gray-700 border border-gray-500"
+      >
+        <option value="">Selecciona una naturaleza</option>
+      </select>
+
+      <!-- Botones -->
+      <div class="flex justify-between mt-4">
+        <button
+          type="button"
+          onclick="cerrarModalEditar()"
+          class="bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="bg-yellow-500 hover:bg-yellow-400 text-black px-4 py-2 rounded font-semibold"
+        >
+          Guardar cambios
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
 
   <!--FOOTER-->
   <!-- FOOTER ESTILO POKÉMON -->
@@ -523,66 +588,125 @@
 </footer>
   
   <script src="/Pag_principal/script.js"></script>
-  <script>
+<script>
 let pokemonSeleccionado = null;
 
 /* =====================
-   GRID DE POKÉMON
+   CARGAR GRID
 ===================== */
-fetch('/api/mis-pokemon')
-  .then(res => res.json())
-  .then(pokemons => {
-    const grid = document.getElementById('pokemonGrid');
-    grid.innerHTML = '';
+async function cargarGrid() {
+  const res = await fetch('/api/mis-pokemon');
+  const pokemons = await res.json();
 
-    pokemons.forEach(p => {
-      const card = document.createElement('div');
-      card.className = 'cursor-pointer bg-white/80 rounded-lg p-2 hover:scale-105 transition';
-      card.onclick = () => seleccionarPokemon(p.id_pokemon);
+  const grid = document.getElementById('pokemonGrid');
+  grid.innerHTML = '';
 
-      card.innerHTML = `
-        <img src="${p.imagen_url}" class="w-16 h-16 mx-auto">
-        <p class="text-center text-xs font-bold text-black">${p.nombre}</p>
-      `;
+  pokemons.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'cursor-pointer bg-white/80 rounded-lg p-2 hover:scale-105 transition';
+    card.onclick = () => seleccionarPokemon(p.id_pokemon);
 
-      grid.appendChild(card);
-    });
+    card.innerHTML = `
+      <img src="${p.imagen_url}" class="w-16 h-16 mx-auto">
+      <p class="text-center text-xs font-bold text-black capitalize">${p.nombre}</p>
+    `;
+
+    grid.appendChild(card);
   });
+}
+cargarGrid();
 
 /* =====================
-   SELECCIONAR POKÉMON
+   SELECCIONAR
 ===================== */
-function seleccionarPokemon(id) {
-  fetch(`/api/pokemon/${id}`)
-    .then(res => res.json())
-    .then(p => {
-      pokemonSeleccionado = p.id_pokemon;
+async function seleccionarPokemon(id) {
+  const res = await fetch(`/api/pokemon/${id}`);
+  const p = await res.json();
 
-      document.getElementById('pokemon-imagen').innerHTML = `
-        <img src="${p.imagen_url}" class="h-full object-contain">
-      `;
+  pokemonSeleccionado = p.id_pokemon;
 
-      document.getElementById('pokemon-info').innerHTML = `
-        <h2 class="text-lg font-bold mb-2">${p.nombre}</h2>
-        <p><strong>Nivel:</strong> ${p.nivel}</p>
-        <p><strong>Sexo:</strong> ${p.sexo}</p>
-        <p><strong>Naturaleza:</strong> ${p.nombre_naturaleza ?? '—'}</p>
-      `;
-    });
+  document.getElementById('pokemon-imagen').innerHTML = `
+    <img src="${p.imagen_url}" class="h-full object-contain">
+  `;
+
+  document.getElementById('pokemon-info').innerHTML = `
+    <h2 class="text-lg font-bold mb-2 capitalize">${p.nombre}</h2>
+    <p><strong>Nivel:</strong> ${p.nivel}</p>
+    <p><strong>Sexo:</strong> ${p.sexo}</p>
+    <p><strong>Naturaleza:</strong> ${p.nombre_naturaleza ?? '—'}</p>
+  `;
+
+  document.getElementById('pokemon-acciones').classList.remove('hidden');
 }
 
 /* =====================
    ELIMINAR
 ===================== */
-function liberarPokemon() {
-  if (!pokemonSeleccionado) return alert('Selecciona un Pokémon');
+async function liberarPokemon() {
+  if (!pokemonSeleccionado) return;
 
-  fetch(`/api/pokemon/${pokemonSeleccionado}`, { method: 'DELETE' })
-    .then(() => location.reload());
+  if (!confirm('¿Seguro que deseas liberar este Pokémon?')) return;
+
+  await fetch(`/api/pokemon/${pokemonSeleccionado}`, {
+    method: 'DELETE'
+  });
+
+  location.reload();
 }
 
 /* =====================
-   MODAL
+   ABRIR MODAL EDITAR
+===================== */
+async function editarPokemon() {
+  if (!pokemonSeleccionado) return;
+
+  document.getElementById('modal-editar').classList.remove('hidden');
+
+  await cargarNaturalezasEditar();
+
+  const res = await fetch(`/api/pokemon/${pokemonSeleccionado}`);
+  const p = await res.json();
+
+  document.getElementById('editar-nivel').value = p.nivel;
+  document.getElementById('editar-sexo').value = p.sexo;
+  document.getElementById('editar-naturaleza').value = p.nombre_naturaleza ?? '';
+}
+
+/* =====================
+   CERRAR MODAL EDITAR
+===================== */
+function cerrarModalEditar() {
+  document.getElementById('modal-editar').classList.add('hidden');
+  document.getElementById('form-editar-pokemon').reset();
+}
+
+/* =====================
+   GUARDAR EDICIÓN
+===================== */
+document.getElementById('form-editar-pokemon').addEventListener('submit', async e => {
+  e.preventDefault();
+
+  const nivel = Number(document.getElementById('editar-nivel').value);
+  const sexo = document.getElementById('editar-sexo').value;
+  const naturaleza = document.getElementById('editar-naturaleza').value || null;
+
+  const res = await fetch(`/api/pokemon/${pokemonSeleccionado}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nivel, sexo, naturaleza })
+  });
+
+  if (!res.ok) {
+    alert('Error al actualizar');
+    return;
+  }
+
+  cerrarModalEditar();
+  location.reload();
+});
+
+/* =====================
+   MODAL CREAR
 ===================== */
 function abrirModalCrear() {
   document.getElementById('modal-crear').classList.remove('hidden');
@@ -596,7 +720,7 @@ function cerrarModalCrear() {
 }
 
 /* =====================
-   NATURALEZAS
+   NATURALEZAS CREAR
 ===================== */
 async function cargarNaturalezas() {
   const res = await fetch('/api/naturalezas');
@@ -614,7 +738,25 @@ async function cargarNaturalezas() {
 }
 
 /* =====================
-   PREVIEW POKÉAPI
+   NATURALEZAS EDITAR
+===================== */
+async function cargarNaturalezasEditar() {
+  const res = await fetch('/api/naturalezas');
+  const data = await res.json();
+
+  const select = document.getElementById('editar-naturaleza');
+  select.innerHTML = '<option value="">Sin naturaleza</option>';
+
+  data.forEach(n => {
+    const opt = document.createElement('option');
+    opt.value = n.nombre_naturaleza;
+    opt.textContent = n.nombre_naturaleza;
+    select.appendChild(opt);
+  });
+}
+
+/* =====================
+   PREVIEW API
 ===================== */
 document.getElementById('pokemon-api').addEventListener('change', async () => {
   const value = document.getElementById('pokemon-api').value.toLowerCase();
@@ -631,10 +773,11 @@ document.getElementById('pokemon-api').addEventListener('change', async () => {
     img.classList.add('hidden');
   }
 });
+
 /* =====================
    CREAR POKÉMON
 ===================== */
-document.getElementById('form-crear-pokemon').addEventListener('submit', async (e) => {
+document.getElementById('form-crear-pokemon').addEventListener('submit', async e => {
   e.preventDefault();
 
   const apiValue = document.getElementById('pokemon-api').value.trim().toLowerCase();
@@ -672,5 +815,6 @@ document.getElementById('form-crear-pokemon').addEventListener('submit', async (
   }
 });
 </script>
+
 </body>
 </html>
