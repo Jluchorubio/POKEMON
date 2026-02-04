@@ -78,3 +78,32 @@ CREATE TABLE pokemon_tipo (
 
 INSERT INTO usuario (nombre_usuario, email, password)
 VALUES ('Ash', 'ash@pokemon.com', 'pikachu');
+
+ALTER TABLE pokemon
+ADD COLUMN imagen_url VARCHAR(255) NOT NULL;
+
+ALTER TABLE pokemon
+MODIFY id_juego INT NULL;
+
+INSERT INTO naturalezas (nombre_naturaleza) VALUES
+('Audaz'),
+('Firme'),
+('Modesta'),
+('Miedosa'),
+('Alegre'),
+('Serena'),
+('Osada'),
+('Cauta'),
+('Floja'),
+('Plácida'),
+('Agitada'),
+('Ingenua'),
+('Tímida'),
+('Alocada'),
+('Grosera'),
+('Afable'),
+('Dócil'),
+('Pícara'),
+('Rara'),
+('Fuerte');
+
