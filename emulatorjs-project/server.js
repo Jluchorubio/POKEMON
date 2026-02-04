@@ -9,8 +9,8 @@ const PORT = process.env.PORT || 3000;
 /* =====================
    MIDDLEWARES
 ===================== */
-app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
   secret: 'pokemon-secret',
@@ -18,7 +18,6 @@ app.use(session({
   saveUninitialized: false
 }));
 
-// Archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
 
 /* =====================
@@ -33,35 +32,42 @@ const db = mysql.createConnection({
 
 db.connect(err => {
   if (err) {
-    console.error('Error MySQL:', err);
+    console.error('❌ Error MySQL:', err);
   } else {
-    console.log('Conectado a MySQL');
+    console.log('✅ Conectado a MySQL');
   }
 });
 
 /* =====================
-   MIDDLEWARE DE AUTENTICACIÓN
+   AUTH MIDDLEWARES
 ===================== */
-function auth(req, res, next) {
+function authView(req, res, next) {
   if (!req.session.user) {
     return res.redirect('/login.html');
   }
   next();
 }
 
+function authApi(req, res, next) {
+  if (!req.session.user) {
+    return res.status(401).json({ error: 'No autorizado' });
+  }
+  next();
+}
+
 /* =====================
-   RUTAS
+   VISTAS (HTML)
 ===================== */
 
 // HOME
-app.get('/', (req, res) => {
-  if (!req.session.user) {
-    return res.redirect('/login.html');
-  }
-
+app.get('/', authView, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'Pag_principal', 'index.html'));
 });
 
+// MIS POKÉMON
+app.get('/mis-pokemon', authView, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'mis-pokemon.html'));
+});
 
 // LOGIN
 app.post('/login', (req, res) => {
@@ -73,39 +79,19 @@ app.post('/login', (req, res) => {
     WHERE email = ? AND password = ?
   `;
 
-  db.query(sql, [email, password], (err, results) => {
-    if (err) return res.send('Error en servidor');
+  db.query(sql, [email, password], (err, rows) => {
+    if (err) return res.status(500).send('Error servidor');
 
-    if (results.length > 0) {
-      req.session.user = {
-        id: results[0].id_usuario,
-        nombre: results[0].nombre_usuario
-      };
-      res.redirect('/');
-    } else {
-      res.send('Credenciales incorrectas');
+    if (rows.length === 0) {
+      return res.send('Credenciales incorrectas');
     }
-  });
-});
 
-// PÁGINA TUS POKÉMON
-app.get('/mis-pokemon', auth, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'mis-pokemon.html'));
-});
+    req.session.user = {
+      id: rows[0].id_usuario,
+      nombre: rows[0].nombre_usuario
+    };
 
-// API: LISTAR POKÉMON DEL USUARIO
-app.get('/api/mis-pokemon', auth, (req, res) => {
-  const idUsuario = req.session.user.id;
-
-  const sql = `
-    SELECT nombre, nivel, sexo
-    FROM pokemon
-    WHERE id_usuario = ?
-  `;
-
-  db.query(sql, [idUsuario], (err, results) => {
-    if (err) return res.json([]);
-    res.json(results);
+    res.redirect('/');
   });
 });
 
@@ -116,15 +102,165 @@ app.get('/logout', (req, res) => {
 });
 
 /* =====================
+   API (JSON)
+===================== */
+
+// NATURALEZAS
+app.get('/api/naturalezas', authApi, (req, res) => {
+  const sql = `
+    SELECT id_naturaleza, nombre_naturaleza
+    FROM naturaleza
+    ORDER BY nombre_naturaleza
+  `;
+
+  db.query(sql, (err, rows) => {
+    if (err) return res.status(500).json([]);
+    res.json(rows);
+  });
+});
+
+// LISTAR POKÉMON
+app.get('/api/mis-pokemon', authApi, (req, res) => {
+  const sql = `
+    SELECT id_pokemon, nombre, imagen_url
+    FROM pokemon
+    WHERE id_usuario = ?
+    ORDER BY id_pokemon DESC
+  `;
+
+  db.query(sql, [req.session.user.id], (err, rows) => {
+    if (err) return res.json([]);
+    res.json(rows);
+  });
+});
+
+// DETALLE POKÉMON
+app.get('/api/pokemon/:id', authApi, (req, res) => {
+  const sql = `
+    SELECT p.id_pokemon, p.nombre, p.nivel, p.sexo, p.imagen_url,
+           n.nombre_naturaleza
+    FROM pokemon p
+    LEFT JOIN naturaleza n ON p.id_naturaleza = n.id_naturaleza
+    WHERE p.id_pokemon = ? AND p.id_usuario = ?
+  `;
+
+  db.query(sql, [req.params.id, req.session.user.id], (err, rows) => {
+    if (err || rows.length === 0) {
+      return res.status(404).json({});
+    }
+    res.json(rows[0]);
+  });
+});
+
+// CREAR POKÉMON
+app.post('/api/pokemon', authApi, (req, res) => {
+  const { nombre, nivel, sexo, imagen_url, naturaleza } = req.body;
+
+  // 👉 SIN NATURALEZA
+  if (!naturaleza) {
+    const sql = `
+      INSERT INTO pokemon
+      (nombre, nivel, sexo, imagen_url, id_usuario, id_naturaleza)
+      VALUES (?, ?, ?, ?, ?, NULL)
+    `;
+
+    return db.query(
+      sql,
+      [nombre, nivel, sexo, imagen_url, req.session.user.id],
+      err => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send('Error al guardar');
+        }
+        res.sendStatus(201);
+      }
+    );
+  }
+
+  // 👉 CON NATURALEZA
+  const natSQL = `
+    SELECT id_naturaleza
+    FROM naturaleza
+    WHERE nombre_naturaleza = ?
+  `;
+
+  db.query(natSQL, [naturaleza], (err, natRows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error naturaleza');
+    }
+
+    const id_naturaleza = natRows.length ? natRows[0].id_naturaleza : null;
+
+    const sql = `
+      INSERT INTO pokemon
+      (nombre, nivel, sexo, imagen_url, id_usuario, id_naturaleza)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `;
+
+    db.query(
+      sql,
+      [nombre, nivel, sexo, imagen_url, req.session.user.id, id_naturaleza],
+      err => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send('Error al guardar');
+        }
+        res.sendStatus(201);
+      }
+    );
+  });
+});
+
+
+// EDITAR POKÉMON
+app.put('/api/pokemon/:id', authApi, (req, res) => {
+  const { nivel, sexo, naturaleza } = req.body;
+
+  const natSQL = `
+    SELECT id_naturaleza
+    FROM naturaleza
+    WHERE nombre_naturaleza = ?
+  `;
+
+  db.query(natSQL, [naturaleza], (err, natRows) => {
+    if (err) return res.status(500).send(err);
+
+    const id_naturaleza = natRows.length ? natRows[0].id_naturaleza : null;
+
+    const sql = `
+      UPDATE pokemon
+      SET nivel = ?, sexo = ?, id_naturaleza = ?
+      WHERE id_pokemon = ? AND id_usuario = ?
+    `;
+
+    db.query(
+      sql,
+      [nivel, sexo, id_naturaleza, req.params.id, req.session.user.id],
+      err => {
+        if (err) return res.status(500).send(err);
+        res.sendStatus(200);
+      }
+    );
+  });
+});
+
+// ELIMINAR POKÉMON
+app.delete('/api/pokemon/:id', authApi, (req, res) => {
+  const sql = `
+    DELETE FROM pokemon
+    WHERE id_pokemon = ? AND id_usuario = ?
+  `;
+
+  db.query(sql, [req.params.id, req.session.user.id], err => {
+    if (err) return res.status(500).send('Error');
+    res.sendStatus(200);
+  });
+});
+
+/* =====================
    SERVIDOR
 ===================== */
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
-
-app.get('/test-db', (req, res) => {
-  db.query('SELECT * FROM usuario', (err, results) => {
-    if (err) return res.send('Error en la consulta');
-    res.json(results);
-  });
+  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });

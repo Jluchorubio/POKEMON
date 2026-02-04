@@ -257,6 +257,220 @@
   </div>
 </div>
 
+<!-- PC_POKEMON -->
+<div class="p-6">
+  <h2 class="text-2xl font-bold mb-4">Tus Pokémon</h2>
+</div>
+
+<div class="w-full min-h-screen flex bg-gray-900 text-white">
+
+  <!-- LADO IZQUIERDO -->
+  <aside class="w-1/4 bg-gray-800 border-r-4 border-green-400 p-4 flex flex-col gap-4">
+
+    <!-- Imagen del Pokémon -->
+    <div
+      id="pokemon-imagen"
+      class="h-48 bg-gray-700 rounded-lg flex items-center justify-center border-2 border-green-300"
+    >
+      <span class="text-gray-400">Selecciona un Pokémon</span>
+    </div>
+
+<!-- Información del Pokémon -->
+<div
+  id="pokemon-info"
+  class="flex-1 bg-gray-700 rounded-lg p-3 border-2 border-green-300 text-sm"
+>
+  <p class="text-gray-400">Selecciona un Pokémon</p>
+</div>
+
+<!-- BOTONES (debajo de la info) -->
+<div id="pokemon-acciones" class="flex gap-3 mt-3 hidden">
+  <button
+    onclick="editarPokemon()"
+    class="flex-1 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold py-2 rounded"
+  >
+    Editar
+  </button>
+
+  <button
+    onclick="liberarPokemon()"
+    class="flex-1 bg-red-600 hover:bg-red-500 font-semibold py-2 rounded"
+  >
+    Liberar
+  </button>
+</div>
+
+
+  </aside>
+
+  <!-- LADO DERECHO -->
+  <div class="w-3/4 relative p-4">
+
+    <!-- Botón superior -->
+    <div class="flex gap-4 mb-3">
+      <button onclick="abrirModalCrear()" class="bg-green-600 hover:bg-green-500 px-4 py-2 rounded-lg shadow">
+        Crear Pokémon
+      </button>
+    </div>
+
+    <!-- Caja Pokémon -->
+    <div class="relative w-full h-[85%]">
+
+      <img
+        src="Pag_principal/IMG/fondo_caja.jpg"
+        alt="fondo de la caja"
+        class="w-full h-full object-cover rounded-xl border-4 border-green-400"
+      >
+
+      <!-- GRID DE POKÉMON -->
+      <div id="pokemonGrid" class="absolute inset-0 p-8 grid grid-cols-5 gap-4">
+        <!-- Aquí el JS inyecta las cards -->
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- MODAL CREAR POKÉMON -->
+<div
+  id="modal-crear"
+  class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+>
+  <div class="bg-gray-800 text-white w-full max-w-md rounded-xl p-6 border-4 border-green-400">
+
+    <h2 class="text-xl font-bold mb-4">Crear Pokémon</h2>
+
+    <form id="form-crear-pokemon" class="flex flex-col gap-3">
+
+      <!-- Nombre / ID PokéAPI -->
+      <input
+        id="pokemon-api"
+        type="text"
+        placeholder="Nombre o ID (ej: pikachu o 25)"
+        required
+        class="px-3 py-2 rounded bg-gray-700 border border-gray-500"
+      >
+
+      <!-- Preview -->
+      <img
+        id="pokemon-preview"
+        class="hidden w-32 h-32 mx-auto object-contain border border-gray-500 rounded bg-gray-700"
+      />
+
+      <!-- Nivel -->
+      <input
+        id="pokemon-nivel"
+        type="number"
+        min="1"
+        max="100"
+        placeholder="Nivel"
+        required
+        class="px-3 py-2 rounded bg-gray-700 border border-gray-500"
+      >
+
+      <!-- Sexo -->
+      <select
+        id="pokemon-sexo"
+        class="px-3 py-2 rounded bg-gray-700 border border-gray-500"
+      >
+        <option value="M">Macho</option>
+        <option value="F">Hembra</option>
+        <option value="Desconocido">Desconocido</option>
+      </select>
+
+      <!-- Naturaleza -->
+      <select
+        id="pokemon-naturaleza"
+        class="px-3 py-2 rounded bg-gray-700 border border-gray-500"
+      >
+        <option value="">Cargando naturalezas...</option>
+      </select>
+
+      <!-- Botones -->
+      <div class="flex justify-between mt-4">
+        <button
+          type="button"
+          onclick="cerrarModalCrear()"
+          class="bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="bg-green-600 hover:bg-green-500 px-4 py-2 rounded"
+        >
+          Crear
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- MODAL EDITAR POKÉMON -->
+<div
+  id="modal-editar"
+  class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+>
+  <div class="bg-gray-800 text-white w-full max-w-md rounded-xl p-6 border-4 border-yellow-400">
+
+    <h2 class="text-xl font-bold mb-4">Editar Pokémon</h2>
+
+    <form id="form-editar-pokemon" class="flex flex-col gap-3">
+
+      <!-- Nivel -->
+      <input
+        id="editar-nivel"
+        type="number"
+        min="1"
+        max="100"
+        placeholder="Nivel"
+        required
+        class="px-3 py-2 rounded bg-gray-700 border border-gray-500"
+      >
+
+      <!-- Sexo -->
+      <select
+        id="editar-sexo"
+        class="px-3 py-2 rounded bg-gray-700 border border-gray-500"
+      >
+        <option value="M">Macho</option>
+        <option value="F">Hembra</option>
+        <option value="Desconocido">Desconocido</option>
+      </select>
+
+      <!-- Naturaleza -->
+      <select
+        id="editar-naturaleza"
+        class="px-3 py-2 rounded bg-gray-700 border border-gray-500"
+      >
+        <option value="">Selecciona una naturaleza</option>
+      </select>
+
+      <!-- Botones -->
+      <div class="flex justify-between mt-4">
+        <button
+          type="button"
+          onclick="cerrarModalEditar()"
+          class="bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="bg-yellow-500 hover:bg-yellow-400 text-black px-4 py-2 rounded font-semibold"
+        >
+          Guardar cambios
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
 
 
   <!--FOOTER-->
@@ -374,5 +588,233 @@
 </footer>
   
   <script src="/Pag_principal/script.js"></script>
+<script>
+let pokemonSeleccionado = null;
+
+/* =====================
+   CARGAR GRID
+===================== */
+async function cargarGrid() {
+  const res = await fetch('/api/mis-pokemon');
+  const pokemons = await res.json();
+
+  const grid = document.getElementById('pokemonGrid');
+  grid.innerHTML = '';
+
+  pokemons.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'cursor-pointer bg-white/80 rounded-lg p-2 hover:scale-105 transition';
+    card.onclick = () => seleccionarPokemon(p.id_pokemon);
+
+    card.innerHTML = `
+      <img src="${p.imagen_url}" class="w-16 h-16 mx-auto">
+      <p class="text-center text-xs font-bold text-black capitalize">${p.nombre}</p>
+    `;
+
+    grid.appendChild(card);
+  });
+}
+cargarGrid();
+
+/* =====================
+   SELECCIONAR
+===================== */
+async function seleccionarPokemon(id) {
+  const res = await fetch(`/api/pokemon/${id}`);
+  const p = await res.json();
+
+  pokemonSeleccionado = p.id_pokemon;
+
+  document.getElementById('pokemon-imagen').innerHTML = `
+    <img src="${p.imagen_url}" class="h-full object-contain">
+  `;
+
+  document.getElementById('pokemon-info').innerHTML = `
+    <h2 class="text-lg font-bold mb-2 capitalize">${p.nombre}</h2>
+    <p><strong>Nivel:</strong> ${p.nivel}</p>
+    <p><strong>Sexo:</strong> ${p.sexo}</p>
+    <p><strong>Naturaleza:</strong> ${p.nombre_naturaleza ?? '—'}</p>
+  `;
+
+  document.getElementById('pokemon-acciones').classList.remove('hidden');
+}
+
+/* =====================
+   ELIMINAR
+===================== */
+async function liberarPokemon() {
+  if (!pokemonSeleccionado) return;
+
+  if (!confirm('¿Seguro que deseas liberar este Pokémon?')) return;
+
+  await fetch(`/api/pokemon/${pokemonSeleccionado}`, {
+    method: 'DELETE'
+  });
+
+  location.reload();
+}
+
+/* =====================
+   ABRIR MODAL EDITAR
+===================== */
+async function editarPokemon() {
+  if (!pokemonSeleccionado) return;
+
+  document.getElementById('modal-editar').classList.remove('hidden');
+
+  await cargarNaturalezasEditar();
+
+  const res = await fetch(`/api/pokemon/${pokemonSeleccionado}`);
+  const p = await res.json();
+
+  document.getElementById('editar-nivel').value = p.nivel;
+  document.getElementById('editar-sexo').value = p.sexo;
+  document.getElementById('editar-naturaleza').value = p.nombre_naturaleza ?? '';
+}
+
+/* =====================
+   CERRAR MODAL EDITAR
+===================== */
+function cerrarModalEditar() {
+  document.getElementById('modal-editar').classList.add('hidden');
+  document.getElementById('form-editar-pokemon').reset();
+}
+
+/* =====================
+   GUARDAR EDICIÓN
+===================== */
+document.getElementById('form-editar-pokemon').addEventListener('submit', async e => {
+  e.preventDefault();
+
+  const nivel = Number(document.getElementById('editar-nivel').value);
+  const sexo = document.getElementById('editar-sexo').value;
+  const naturaleza = document.getElementById('editar-naturaleza').value || null;
+
+  const res = await fetch(`/api/pokemon/${pokemonSeleccionado}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nivel, sexo, naturaleza })
+  });
+
+  if (!res.ok) {
+    alert('Error al actualizar');
+    return;
+  }
+
+  cerrarModalEditar();
+  location.reload();
+});
+
+/* =====================
+   MODAL CREAR
+===================== */
+function abrirModalCrear() {
+  document.getElementById('modal-crear').classList.remove('hidden');
+  cargarNaturalezas();
+}
+
+function cerrarModalCrear() {
+  document.getElementById('modal-crear').classList.add('hidden');
+  document.getElementById('form-crear-pokemon').reset();
+  document.getElementById('pokemon-preview').classList.add('hidden');
+}
+
+/* =====================
+   NATURALEZAS CREAR
+===================== */
+async function cargarNaturalezas() {
+  const res = await fetch('/api/naturalezas');
+  const data = await res.json();
+
+  const select = document.getElementById('pokemon-naturaleza');
+  select.innerHTML = '<option value="">Selecciona una naturaleza</option>';
+
+  data.forEach(n => {
+    const opt = document.createElement('option');
+    opt.value = n.nombre_naturaleza;
+    opt.textContent = n.nombre_naturaleza;
+    select.appendChild(opt);
+  });
+}
+
+/* =====================
+   NATURALEZAS EDITAR
+===================== */
+async function cargarNaturalezasEditar() {
+  const res = await fetch('/api/naturalezas');
+  const data = await res.json();
+
+  const select = document.getElementById('editar-naturaleza');
+  select.innerHTML = '<option value="">Sin naturaleza</option>';
+
+  data.forEach(n => {
+    const opt = document.createElement('option');
+    opt.value = n.nombre_naturaleza;
+    opt.textContent = n.nombre_naturaleza;
+    select.appendChild(opt);
+  });
+}
+
+/* =====================
+   PREVIEW API
+===================== */
+document.getElementById('pokemon-api').addEventListener('change', async () => {
+  const value = document.getElementById('pokemon-api').value.toLowerCase();
+  const img = document.getElementById('pokemon-preview');
+
+  try {
+    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${value}`);
+    if (!res.ok) throw new Error();
+
+    const data = await res.json();
+    img.src = data.sprites.front_default;
+    img.classList.remove('hidden');
+  } catch {
+    img.classList.add('hidden');
+  }
+});
+
+/* =====================
+   CREAR POKÉMON
+===================== */
+document.getElementById('form-crear-pokemon').addEventListener('submit', async e => {
+  e.preventDefault();
+
+  const apiValue = document.getElementById('pokemon-api').value.trim().toLowerCase();
+  const nivel = Number(document.getElementById('pokemon-nivel').value);
+  const sexo = document.getElementById('pokemon-sexo').value;
+  const naturaleza = document.getElementById('pokemon-naturaleza').value || null;
+
+  try {
+    const pokeRes = await fetch(`https://pokeapi.co/api/v2/pokemon/${apiValue}`);
+    if (!pokeRes.ok) throw new Error('Pokémon no encontrado');
+
+    const pokeData = await pokeRes.json();
+
+    const nuevoPokemon = {
+      nombre: pokeData.name,
+      imagen_url: pokeData.sprites.other['official-artwork'].front_default,
+      nivel,
+      sexo,
+      naturaleza
+    };
+
+    const res = await fetch('/api/pokemon', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(nuevoPokemon)
+    });
+
+    if (!res.ok) throw new Error('Error al guardar');
+
+    cerrarModalCrear();
+    location.reload();
+
+  } catch (err) {
+    alert(err.message);
+  }
+});
+</script>
+
 </body>
 </html>
