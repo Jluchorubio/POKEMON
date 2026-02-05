@@ -85,7 +85,7 @@ ADD COLUMN imagen_url VARCHAR(255) NOT NULL;
 ALTER TABLE pokemon
 MODIFY id_juego INT NULL;
 
-INSERT INTO naturalezas (nombre_naturaleza) VALUES
+INSERT INTO naturaleza (nombre_naturaleza) VALUES
 ('Audaz'),
 ('Firme'),
 ('Modesta'),
